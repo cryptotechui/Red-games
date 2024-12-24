@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Red Games</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: url(./abstract-lines-vector-seamless-pattern_547110-2052.avif);
+      position: relative;
+      height: 100vh;
+      display: grid;
+      grid-template-columns: repeat(100, auto);
+      grid-template-rows: repeat(100, auto);
+      font-family: sans-serif;
+    }
+    .apple {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-color: red;
+      border-radius: 50%;
+      border: 2px solid #8b0000;
+    }
+    #congratulations {
+      color: white;
+      font-size: 60px;
+      grid-row: 50;
+      grid-column: 50;
+      display: none;
+    }
+    #character1 {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background-color: blue;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    #scoreboard {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 24px;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      border-radius: 8px;
+    }
+    ol{
+      display: none;
+      height: 300px;
+      width: 200px;
+      background-color: #332f2f;
+      grid-row: 40;
+      grid-column: 50;
+      color: white;
+      list-style: none;
+      border:white solid 5px;
+      grid-template-columns: repeat(auto, 100);
+      grid-template-rows: repeat(auto, 100);
+    }
+    a{
+      text-decoration: none;
+      color: white;
+    }
+    li{
+      text-align: center;
+      position: relative;
+      font-size: 20px;
+      right: 15px;
+    }
+    .tittle{
+      font-size: 30px;
+    }
+    .button1{
+      position: relative;
+      cursor: pointer;
+    }
+    .button2{
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <div id="congratulations">Congratulations!</div>
+  <div id="scoreboard">Score: 0</div>
+  <div id="character1"></div>
+  <ol id="list">
+    <li class="tittle">You completed the level</li>
+    <li class="button1" onclick="restartGame()">Restart</li>
+    <li class="button2"><a href="../games_list.html">menu</a></li>
+  </ol>
+  <script>
+    const character = document.getElementById("character1");
+    const scoreboard = document.getElementById("scoreboard");
+    const body = document.body;
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const speed = 10;
+    let characterX = screenWidth / 2;
+    let characterY = screenHeight / 2;
+    const apples = [];
+    let score = 0;
+    const congratulations = document.getElementById("congratulations");
+    const list = document.getElementById("list");
+    let startTime;
+    let timerInterval;
+    let elapsedTime = 0;
+
+    function startTimer() {
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
+    function updateScore() {
+      score++;
+      scoreboard.textContent = `Score: ${score}`;
+      if (score === 20) {
+        stopTimer();
+        congratulations.style.display = "block";
+        document.querySelector(".tittle").textContent = `You completed the level in ${elapsedTime} seconds`;
+        setTimeout(() => {
+          congratulations.style.display = "none";
+          list.style.display = "inline";
+        }, 750);
+      }
+    }
+
+    function restartGame() {
+      score = 0;
+      scoreboard.textContent = `Score: ${score}`;
+      apples.forEach((apple) => apple.remove());
+      apples.length = 0;
+      characterX = screenWidth / 2;
+      characterY = screenHeight / 2;
+      character.style.left = `${characterX}px`;
+      character.style.top = `${characterY}px`;
+      generateRandomApples(20);
+      list.style.display = "none";
+      elapsedTime = 0;
+      startTimer();
+    }
+
+    function generateRandomApples(count) {
+      for (let i = 0; i < count; i++) {
+        const apple = document.createElement("div");
+        apple.className = "apple";
+        const x = Math.random() * (screenWidth - 30);
+        const y = Math.random() * (screenHeight - 30);
+        apple.style.left = `${x}px`;
+        apple.style.top = `${y}px`;
+        body.appendChild(apple);
+        apples.push(apple);
+      }
+    }
+
+    function moveCharacter(event) {
+      switch (event.key) {
+        case "ArrowUp":
+          characterY = Math.max(0, characterY - speed);
+          break;
+        case "ArrowDown":
+          characterY = Math.min(screenHeight - 40, characterY + speed);
+          break;
+        case "ArrowLeft":
+          characterX = Math.max(0, characterX - speed);
+          break;
+        case "ArrowRight":
+          characterX = Math.min(screenWidth - 40, characterX + speed);
+          break;
+      }
+      character.style.left = `${characterX}px`;
+      character.style.top = `${characterY}px`;
+      eat();
+    }
+
+    function eat() {
+      const characterRect = character.getBoundingClientRect();
+      apples.forEach((apple, index) => {
+        const appleRect = apple.getBoundingClientRect();
+        if (
+          !(
+            characterRect.top > appleRect.bottom ||
+            characterRect.bottom < appleRect.top ||
+            characterRect.left > appleRect.right ||
+            characterRect.right < appleRect.left
+          )
+        ) {
+          apple.remove();
+          apples.splice(index, 1);
+          updateScore();
+        }
+      });
+    }
+
+    window.onload = () => {
+      generateRandomApples(20);
+      startTimer();
+      document.addEventListener("keydown", moveCharacter);
+    };
+  </script>
+</body>
+</html>

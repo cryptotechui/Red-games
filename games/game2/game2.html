@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red games</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        #congratulations {
+            color: white;
+            font-size: 60px;
+            grid-row: 50;
+            grid-column: 50;
+            display: none;
+    }
+    ol{
+      display: none;
+      height: 300px;
+      width: 200px;
+      background-color: #332f2f;
+      grid-row: 40;
+      grid-column: 50;
+      color: white;
+      list-style: none;
+      border:white solid 5px;
+      grid-template-columns: repeat(auto, 100);
+      grid-template-rows: repeat(auto, 100);
+    }
+    a{
+      text-decoration: none;
+      color: white;
+    }
+    li{
+      text-align: center;
+      position: relative;
+      font-size: 20px;
+      right: 15px;
+    }
+    .tittle{
+      font-size: 30px;
+    }
+    .button1{
+      position: relative;
+      cursor: pointer;
+    }
+    .button2{
+      position: relative;
+    }
+    </style>
+</head>
+<body>
+    <canvas id="mazeCanvas"></canvas>
+    <div id="congratulations">Congratulations!</div>
+    <ol id="list">
+        <li class="tittle">You completed the level</li>
+        <li class="button1" onclick="restartGame()">Restart</li>
+        <li class="button2"><a href="../games_list.html">menu</a></li>
+    </ol>
+    <script>
+    const congratulations = document.getElementById("congratulations");
+    const list = document.getElementById("list")
+
+
+
+        function generateMaze(width, height) {
+            const maze = Array.from({ length: height }, () => Array(width).fill(false));
+            const directions = [
+                [0, 2], [0, -2], [2, 0], [-2, 0]
+            ];
+
+            function isInBounds(x, y) {
+                return x >= 0 && y >= 0 && x < height && y < width;
+            }
+
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            function carve(x, y) {
+                maze[x][y] = true;
+                const neighbors = [];
+
+                directions.forEach(([dx, dy]) => {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (isInBounds(nx, ny) && !maze[nx][ny]) {
+                        neighbors.push([nx, ny]);
+                    }
+                });
+
+                shuffle(neighbors);
+                neighbors.forEach(([nx, ny]) => {
+                    const wallX = (x + nx) / 2;
+                    const wallY = (y + ny) / 2;
+                    if (!maze[nx][ny]) {
+                        maze[wallX][wallY] = true;
+                        carve(nx, ny);
+                    }
+                });
+            }
+
+            carve(1, 1);
+            return maze;
+        }
+
+        function drawMaze(maze, cellSize, context) {
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+            context.fillStyle = '#fff';
+
+            for (let x = 0; x < maze.length; x++) {
+                for (let y = 0; y < maze[x].length; y++) {
+                    if (!maze[x][y]) {
+                        context.fillRect(y * cellSize, x * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+        }
+
+        function drawCharacter(context, x, y, cellSize, color) {
+            const radius = cellSize / 3;
+            context.fillStyle = color;
+            context.beginPath();
+            context.arc(
+                y * cellSize + cellSize / 2,
+                x * cellSize + cellSize / 2,
+                radius,
+                0,
+                Math.PI * 2
+            );
+            context.fill();
+        }
+
+        function resizeCanvas(canvas) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+      
+        const canvas = document.getElementById('mazeCanvas');
+        const context = canvas.getContext('2d');
+        resizeCanvas(canvas);
+
+        const cellSize = 25;
+        const mazeWidth = Math.floor(canvas.width / cellSize) * 2 - 1;
+        const mazeHeight = Math.floor(canvas.height / cellSize) * 2 - 1;
+
+        const maze = generateMaze(mazeWidth, mazeHeight);
+
+        
+        let playerX = 1, playerY = 1;
+        const endX = maze.length - 2;
+        const endY = maze[0].length - 2;
+
+        function update() {
+            drawMaze(maze, cellSize, context);
+            drawCharacter(context, playerX, playerY, cellSize, 'red');
+            drawCharacter(context, endX, endY, cellSize, 'green');
+        }
+
+        function movePlayer(dx, dy) {
+            const newX = playerX + dx;
+            const newY = playerY + dy;
+
+            if (newX >= 0 && newY >= 0 && newX < maze.length && newY < maze[0].length && maze[newX][newY]) {
+                playerX = newX;
+                playerY = newY;
+            }
+
+            if (playerX === endX && playerY === endY) {
+                congratulations.style.display = "inline"
+                setTimeout(() => {
+                    congratulations.style.display = "none";
+                    list.style.display = "inline";
+                }, 750);
+            }
+
+            update();
+        }
+
+        window.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'ArrowUp': movePlayer(-1, 0); break;
+                case 'ArrowDown': movePlayer(1, 0); break;
+                case 'ArrowLeft': movePlayer(0, -1); break;
+                case 'ArrowRight': movePlayer(0, 1); break;
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            resizeCanvas(canvas);
+            update();
+        });
+
+        update();
+    </script>
+</body>
+</html>

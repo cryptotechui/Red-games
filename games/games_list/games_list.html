@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Red games</title>
+</head>
+<style>
+    body{
+        font-family: sans-serif;
+    }
+</style>
+<body id="body">
+    <script>
+        let container = document.createElement("div");
+        let gamesData = [
+            { name: 'Apple game', image: './game_image/game1_image.png', url: '../game1/game1_info.html' },
+            { name: 'Maze Game', image: './game_image/game2_image.png', url: '../game2/game2_info.html' }    
+        ];
+
+        document.body.appendChild(container);
+
+        function games(gameName, imgSrc, gameUrl){
+            let body = document.getElementById("body")
+            let card = document.createElement("div");
+            let title = document.createElement("h2");
+            let img = document.createElement("img");
+            let head = document.createTextNode(gameName);
+            img.src = imgSrc;
+            title.appendChild(head);
+            card.appendChild(title);
+            card.appendChild(img);
+            container.appendChild(card);
+            card.style.height = "200px";
+            card.style.width = "300px";
+            card.style.background = "#444";
+            card.style.color = "#fff";
+            card.style.padding = "10px";
+            card.style.margin = "2px";
+            card.style.display = "inline-block";
+            img.style.height = "100%";
+            img.style.width = "100%";
+            card.style.cursor = "pointer";
+            body.style.background = "#444"
+
+            
+            card.addEventListener("click", function() {
+                window.location.href = gameUrl;
+            });
+        }
+
+        
+        for (let i = 0; i < gamesData.length; i++) {
+            games(gamesData[i].name, gamesData[i].image, gamesData[i].url);
+        }
+    </script>
+</body>
+</html>
