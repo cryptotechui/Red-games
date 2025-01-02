@@ -114,8 +114,8 @@
 <body>
     <canvas id="mazeCanvas"></canvas>
     <div id="congratulations">Congratulations!</div>
+    <li class="tittle">You completed this level in <span id="timeTaken">0</span> seconds!</li>
     <ol id="list">
-        <li class="tittle">You completed the level</li>
         <li class="button1" onclick="restartGame()">Restart</li>
         <li class="button2"><a href="../games_list/games_list.html">Menu</a></li>
     </ol>
@@ -125,9 +125,11 @@
         <button id="down" onclick="movePlayer(1, 0)">&#9660;</button>
         <button id="left" onclick="movePlayer(0, -1)">&#9664;</button>
     </div>
-        <script>
+    <script>
     const congratulations = document.getElementById("congratulations");
     const list = document.getElementById("list");
+
+    let startTime, timerInterval;
 
     function generateMaze(width, height) {
         const maze = Array.from({ length: height }, () => Array(width).fill(false));
@@ -246,13 +248,35 @@
         }
 
         if (playerX === endX && playerY === endY) {
+            stopTimer();
+            const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+            congratulations.innerHTML = `Congratulations! You completed this level in ${timeTaken} seconds!`;
             congratulations.style.display = "inline";
             setTimeout(() => {
                 congratulations.style.display = "none";
                 list.style.display = "block";
-            }, 750);
+            }, 2000);
         }
 
+        update();
+    }
+
+    function startTimer() {
+        startTime = Date.now();
+        timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+    }
+
+    function restartGame() {
+        playerX = 1;
+        playerY = 1;
+        list.style.display = "none";
+        startTimer();
         update();
     }
 
@@ -270,7 +294,9 @@
         update();
     });
 
+    
+    startTimer();
     update();
-</script>
+    </script>
 </body>
 </html>
