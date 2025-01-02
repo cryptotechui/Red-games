@@ -114,8 +114,8 @@
 <body>
     <canvas id="mazeCanvas"></canvas>
     <div id="congratulations">Congratulations!</div>
-    <li class="tittle">You completed this level in <span id="timeTaken">0</span> seconds!</li>
     <ol id="list">
+        <li class="tittle" id="levelCompletionTitle">You completed this level!</li>
         <li class="button1" onclick="restartGame()">Restart</li>
         <li class="button2"><a href="../games_list/games_list.html">Menu</a></li>
     </ol>
@@ -128,6 +128,7 @@
     <script>
     const congratulations = document.getElementById("congratulations");
     const list = document.getElementById("list");
+    const levelCompletionTitle = document.getElementById("levelCompletionTitle");
 
     let startTime, timerInterval;
 
@@ -250,7 +251,7 @@
         if (playerX === endX && playerY === endY) {
             stopTimer();
             const timeTaken = Math.floor((Date.now() - startTime) / 1000);
-            congratulations.innerHTML = `Congratulations! You completed this level in ${timeTaken} seconds!`;
+            levelCompletionTitle.innerHTML = `You completed this level in ${timeTaken} seconds!`;
             congratulations.style.display = "inline";
             setTimeout(() => {
                 congratulations.style.display = "none";
@@ -294,7 +295,7 @@
         update();
     });
 
-    
+    // Start the game and the timer
     startTimer();
     update();
     </script>
