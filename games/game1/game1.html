@@ -1,212 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Red Games</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: url(./abstract-lines-vector-seamless-pattern_547110-2052.avif);
-      position: relative;
-      height: 100vh;
-      display: grid;
-      grid-template-columns: repeat(100, auto);
-      grid-template-rows: repeat(100, auto);
-      font-family: sans-serif;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Games</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #222;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+        }
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+        #congratulations {
+            color: white;
+            font-size: 60px;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+        ol {
+            display: none;
+            width: 300px;
+            max-width: 80%;
+            background-color: #332f2f;
+            color: white;
+            list-style: none;
+            border: 5px solid white;
+            padding: 10px;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        a {
+            text-decoration: none;
+            color: white;
+        }
+        li {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        .tittle {
+            font-size: 30px;
+            margin-bottom: 20px;
+        }
+        .button1, .button2 {
+            cursor: pointer;
+        }        
+    #controls {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        display: grid;
+        flex-wrap: wrap;
+        gap: 5px;
+        width: 100px;
     }
-    .apple {
-      position: absolute;
-      width: 30px;
-      height: 30px;
-      background-color: red;
-      border-radius: 50%;
-      border: 2px solid #8b0000;
+    #controls button {
+        width: 40px;
+        height: 40px;
+        background-color: #444;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 20px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
     }
-    #congratulations {
-      color: white;
-      font-size: 60px;
-      grid-row: 50;
-      grid-column: 50;
-      display: none;
+    #controls button:hover {
+        background-color: #666;
     }
-    #character1 {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      background-color: blue;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+    #up {
+        grid-row: 1;
+        grid-column: 2;
     }
-    #scoreboard {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      font-size: 24px;
-      color: white;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 10px;
-      border-radius: 8px;
+    #left {
+        grid-row: 2;
+        grid-column: 1;
     }
-    ol{
-      display: none;
-      height: 300px;
-      width: 200px;
-      background-color: #332f2f;
-      grid-row: 40;
-      grid-column: 50;
-      color: white;
-      list-style: none;
-      border:white solid 5px;
-      grid-template-columns: repeat(auto, 100);
-      grid-template-rows: repeat(auto, 100);
+    #down {
+        grid-row: 3;
+        grid-column: 2;
     }
-    a{
-      text-decoration: none;
-      color: white;
+    #right {
+        grid-row: 2;
+        grid-column: 3;
     }
-    li{
-      text-align: center;
-      position: relative;
-      font-size: 20px;
-      right: 15px;
+    
+    @media (min-width: 768px) {
+        #controls {
+            display: none;
+        }
     }
-    .tittle{
-      font-size: 30px;
-    }
-    .button1{
-      position: relative;
-      cursor: pointer;
-    }
-    .button2{
-      position: relative;
-    }
-  </style>
+    </style>
 </head>
 <body>
-  <div id="congratulations">Congratulations!</div>
-  <div id="scoreboard">Score: 0</div>
-  <div id="character1"></div>
-  <ol id="list">
-    <li class="tittle">You completed the level</li>
-    <li class="button1" onclick="restartGame()">Restart</li>
-    <li class="button2"><a href="../games_list/games_list.html">menu</a></li>
-  </ol>
-  <script>
-    const character = document.getElementById("character1");
-    const scoreboard = document.getElementById("scoreboard");
-    const body = document.body;
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-    const speed = 10;
-    let characterX = screenWidth / 2;
-    let characterY = screenHeight / 2;
-    const apples = [];
-    let score = 0;
-    const congratulations = document.getElementById("congratulations");
-    const list = document.getElementById("list");
-    let startTime;
-    let timerInterval;
-    let elapsedTime = 0;
+    <canvas id="mazeCanvas"></canvas>
+    <div id="congratulations">Congratulations!</div>
+    <ol id="list">
+        <li class="tittle">You completed the level</li>
+        <li class="button1" onclick="restartGame()">Restart</li>
+        <li class="button2"><a href="../games_list/games_list.html">Menu</a></li>
+    </ol>
+    <div id="controls">
+        <button id="up" onclick="movePlayer(-1, 0)">&#9650;</button>
+        <button id="right" onclick="movePlayer(0, 1)">&#9654;</button>
+        <button id="down" onclick="movePlayer(1, 0)">&#9660;</button>
+        <button id="left" onclick="movePlayer(0, -1)">&#9664;</button>
+    </div>
+    <script>
+        const congratulations = document.getElementById("congratulations");
+        const list = document.getElementById("list");
 
-    function startTimer() {
-      startTime = Date.now();
-      timerInterval = setInterval(() => {
-        elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-      }, 1000);
-    }
+        function generateMaze(width, height) {
+            const maze = Array.from({ length: height }, () => Array(width).fill(false));
+            const directions = [
+                [0, 2], [0, -2], [2, 0], [-2, 0]
+            ];
 
-    function stopTimer() {
-      clearInterval(timerInterval);
-    }
+            function isInBounds(x, y) {
+                return x >= 0 && y >= 0 && x < height && y < width;
+            }
 
-    function updateScore() {
-      score++;
-      scoreboard.textContent = `Score: ${score}`;
-      if (score === 20) {
-        stopTimer();
-        congratulations.style.display = "block";
-        document.querySelector(".tittle").textContent = `You completed the level in ${elapsedTime} seconds`;
-        setTimeout(() => {
-          congratulations.style.display = "none";
-          list.style.display = "inline";
-        }, 750);
-      }
-    }
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
 
-    function restartGame() {
-      score = 0;
-      scoreboard.textContent = `Score: ${score}`;
-      apples.forEach((apple) => apple.remove());
-      apples.length = 0;
-      characterX = screenWidth / 2;
-      characterY = screenHeight / 2;
-      character.style.left = `${characterX}px`;
-      character.style.top = `${characterY}px`;
-      generateRandomApples(20);
-      list.style.display = "none";
-      elapsedTime = 0;
-      startTimer();
-    }
+            function carve(x, y) {
+                maze[x][y] = true;
+                const neighbors = [];
 
-    function generateRandomApples(count) {
-      for (let i = 0; i < count; i++) {
-        const apple = document.createElement("div");
-        apple.className = "apple";
-        const x = Math.random() * (screenWidth - 30);
-        const y = Math.random() * (screenHeight - 30);
-        apple.style.left = `${x}px`;
-        apple.style.top = `${y}px`;
-        body.appendChild(apple);
-        apples.push(apple);
-      }
-    }
+                directions.forEach(([dx, dy]) => {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (isInBounds(nx, ny) && !maze[nx][ny]) {
+                        neighbors.push([nx, ny]);
+                    }
+                });
 
-    function moveCharacter(event) {
-      switch (event.key) {
-        case "ArrowUp":
-          characterY = Math.max(0, characterY - speed);
-          break;
-        case "ArrowDown":
-          characterY = Math.min(screenHeight - 40, characterY + speed);
-          break;
-        case "ArrowLeft":
-          characterX = Math.max(0, characterX - speed);
-          break;
-        case "ArrowRight":
-          characterX = Math.min(screenWidth - 40, characterX + speed);
-          break;
-      }
-      character.style.left = `${characterX}px`;
-      character.style.top = `${characterY}px`;
-      eat();
-    }
+                shuffle(neighbors);
+                neighbors.forEach(([nx, ny]) => {
+                    const wallX = (x + nx) / 2;
+                    const wallY = (y + ny) / 2;
+                    if (!maze[nx][ny]) {
+                        maze[wallX][wallY] = true;
+                        carve(nx, ny);
+                    }
+                });
+            }
 
-    function eat() {
-      const characterRect = character.getBoundingClientRect();
-      apples.forEach((apple, index) => {
-        const appleRect = apple.getBoundingClientRect();
-        if (
-          !(
-            characterRect.top > appleRect.bottom ||
-            characterRect.bottom < appleRect.top ||
-            characterRect.left > appleRect.right ||
-            characterRect.right < appleRect.left
-          )
-        ) {
-          apple.remove();
-          apples.splice(index, 1);
-          updateScore();
+            carve(1, 1);
+            return maze;
         }
-      });
-    }
 
-    window.onload = () => {
-      generateRandomApples(20);
-      startTimer();
-      document.addEventListener("keydown", moveCharacter);
-    };
-  </script>
+        function drawMaze(maze, cellSize, context) {
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+            context.fillStyle = '#fff';
+
+            for (let x = 0; x < maze.length; x++) {
+                for (let y = 0; y < maze[x].length; y++) {
+                    if (!maze[x][y]) {
+                        context.fillRect(y * cellSize, x * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+        }
+
+        function drawCharacter(context, x, y, cellSize, color) {
+            const radius = cellSize / 3;
+            context.fillStyle = color;
+            context.beginPath();
+            context.arc(
+                y * cellSize + cellSize / 2,
+                x * cellSize + cellSize / 2,
+                radius,
+                0,
+                Math.PI * 2
+            );
+            context.fill();
+        }
+
+        function resizeCanvas(canvas) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        const canvas = document.getElementById('mazeCanvas');
+        const context = canvas.getContext('2d');
+        resizeCanvas(canvas);
+
+        const cellSize = 25;
+        const mazeWidth = Math.floor(canvas.width / cellSize) * 2 - 1;
+        const mazeHeight = Math.floor(canvas.height / cellSize) * 2 - 1;
+
+        const maze = generateMaze(mazeWidth, mazeHeight);
+
+        let playerX = 1, playerY = 1;
+        const endX = maze.length - 2;
+        const endY = maze[0].length - 2;
+
+        function update() {
+            drawMaze(maze, cellSize, context);
+            drawCharacter(context, playerX, playerY, cellSize, 'red');
+            drawCharacter(context, endX, endY, cellSize, 'green');
+        }
+
+        function movePlayer(dx, dy) {
+            const newX = playerX + dx;
+            const newY = playerY + dy;
+
+            if (newX >= 0 && newY >= 0 && newX < maze.length && newY < maze[0].length && maze[newX][newY]) {
+                playerX = newX;
+                playerY = newY;
+            }
+
+            if (playerX === endX && playerY === endY) {
+                congratulations.style.display = "inline";
+                setTimeout(() => {
+                    congratulations.style.display = "none";
+                    list.style.display = "block";
+                }, 750);
+            }
+
+            update();
+        }
+
+        window.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'ArrowUp': movePlayer(-1, 0); break;
+                case 'ArrowDown': movePlayer(1, 0); break;
+                case 'ArrowLeft': movePlayer(0, -1); break;
+                case 'ArrowRight': movePlayer(0, 1); break;
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            resizeCanvas(canvas);
+            update();
+        });
+
+        update();
+    </script>
 </body>
 </html>
